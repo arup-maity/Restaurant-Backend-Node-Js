@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+   provider = "prisma-client-js"
+}
+
+datasource db {
+   provider = "postgresql"
+   url      = env("DATABASE_URL")
+}
+
+// =======================  Customar User =======================
+model Users {
+   id           Int       @id @default(autoincrement())
+   fullName     String?
+   email        String    @unique
+   phoneNumber  String?
+   profileImage String?
+   userAuth     UserAuth?
+   createdAt    DateTime  @default(now())
+   updatedAt    DateTime  @default(now()) @updatedAt
+}
+
+model UserAuth {
+   id       Int     @id @default(autoincrement())
+   userId   Int     @unique
+   user     Users   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+   method   String?
+   password String?
+}
+
+// =======================  Admin User =======================
+model AdminUser {
+   id           Int           @id @default(autoincrement())
+   firstName    String?
+   lastName     String?
+   email        String        @unique
+   role         AdminUserRole @default(technicalSupport)
+   isActive     Boolean       @default(true)
+   profileImage String?
+   resetToken   String?
+   adminAuth    AdminAuth?
+   createdAt    DateTime      @default(now())
+   updatedAt    DateTime      @default(now()) @updatedAt
+}
+
+model AdminAuth {
+   id        Int       @id @default(autoincrement())
+   userId    Int       @unique
+   adminUser AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+   method    String    @default("Password")
+   password  String?
+   token     String?   @unique
+}
+
+enum AdminUserRole {
+   administrator
+   admin
+   manager
+   customerSupport
+   technicalSupport
+   salesAgent
+   deliveryBoy
+}
+
+// ======================= Category================
+
+model Taxonomy {
+   id          Int              @id @default(autoincrement())
+   name        String
+   slug        String           @unique
+   description String?
+   thumbnail   String?
+   type        TaxonomyType     @default(category)
+   parentId    Int?
+   parent      Taxonomy?        @relation("parentRelation", fields: [parentId], references: [id])
+   predecessor Taxonomy[]       @relation("parentRelation")
+   dishes      DishesTaxonomy[]
+   createdAt   DateTime         @default(now())
+   updatedAt   DateTime         @default(now()) @updatedAt
+}
+
+enum TaxonomyType {
+   category
+   tag
+}
+
+model Dishes {
+   id               Int              @id @default(autoincrement())
+   title            String
+   slug             String           @unique
+   description      String?
+   shortDescription String
+   price            Int
+   costPrice        Int?
+   thumbnail        String?
+   nonVeg           Boolean          @default(false)
+   categories       DishesTaxonomy[]
+   createdAt        DateTime         @default(now())
+   updatedAt        DateTime         @default(now()) @updatedAt
+   Checkout         Checkout[]
+}
+
+model DishesTaxonomy {
+   id         Int      @id @default(autoincrement())
+   dishId     Int
+   dish       Dishes   @relation(fields: [dishId], references: [id])
+   taxonomyId Int
+   taxonomy   Taxonomy @relation(fields: [taxonomyId], references: [id])
+
+   @@unique([dishId, taxonomyId])
+}
+
+// =================== checkout ===================
+
+model Checkout {
+   id         Int      @id @default(autoincrement())
+   checkoutId String
+   dishId     Int
+   dishes     Dishes   @relation(fields: [dishId], references: [id])
+   quantity   Int
+   createdAt  DateTime @default(now())
+   updatedAt  DateTime @default(now()) @updatedAt
+
+   @@unique([checkoutId, dishId])
+}
+
+// ================== Orders =================
+
+// model Order {
+//    id          Int    @id @default(autoincrement())
+//    orderId     String
+//    // userId        Int
+//    // user          Users         @relation(fields: [userId], references: [id])
+//    totalAmount Int
+//    // paymentMethod PaymentMethod
+//    // status        OrderStatus
+// }
