@@ -1,0 +1,12 @@
+node_modules/
+.env.production
+.env.development
+.env.staging
+*.zip
+*.xml
+build/
+pnpm-lock.yaml
+logs/
+temp/
+.idea
+dist/
