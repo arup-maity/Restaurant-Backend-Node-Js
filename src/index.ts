@@ -29,7 +29,7 @@ app.route("/api/taxonomy", taxonomyRoute)
 app.route("/api/dishes", dishesRoute)
 app.route("/api/checkout", checkoutRoute)
 app.route("/api/file", fileRoute)
-//
+// demo api
 app.route("/api/demo", demoRoute)
 
 const port = 8081
