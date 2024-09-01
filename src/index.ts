@@ -35,7 +35,4 @@ app.route("/api/demo", demoRoute)
 const port = 8081
 console.log(`Server is running on port ${port}`)
 
-serve({
-   fetch: app.fetch,
-   port
-})
+serve({ fetch: app.fetch, port })
