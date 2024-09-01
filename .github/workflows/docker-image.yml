@@ -12,8 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag arupdocker1/restaurant-backend:latest
+        run: docker build . --file Dockerfile --tag arupdocker1/restaurant-node-backend:latest
       - name: Push the Docker image
         run: |
           docker login -u arupdocker1 -p ${{ secrets.DOCKER_HUB_TOKEN }}
-          docker push arupdocker1/restaurant-backend:latest
+          docker push arupdocker1/restaurant-node-backend:latest
