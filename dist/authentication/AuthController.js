@@ -28,6 +28,7 @@ authRoute.post("/admin-login", (c) => __awaiter(void 0, void 0, void 0, function
     var _a;
     try {
         const body = yield c.req.json();
+        console.log(body);
         // find username
         const user = yield Connection_1.default.adminUser.findUnique({
             where: { email: body.email },
@@ -89,7 +90,7 @@ authRoute.post("/user-login", (c) => __awaiter(void 0, void 0, void 0, function*
         // 
         const payload = {
             id: user === null || user === void 0 ? void 0 : user.id,
-            name: user === null || user === void 0 ? void 0 : user.fullName,
+            name: (user === null || user === void 0 ? void 0 : user.fullName) || '',
             role: 'user',
             accessPurpose: 'user',
             purpose: 'login',

@@ -1,20 +1,23 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from "hono/cors";
-import userRoute from './user-manage/UserController'
 import demoRoute from './demo/DemoController'
 import authRoute from './authentication/AuthController';
 import taxonomyRoute from './taxonomy/TaxonomyController';
 import dishesRoute from './dishes/DishesController';
 import fileRoute from './file-manage/FileManaga';
 import checkoutRoute from './checkout/CheckoutController';
+import adminUserRoute from './controller/AdminUserController';
+import userRoute from './controller/UserController';
+import userAccountRoute from './controller/UserAccountController';
+import adminOrderRoute from './controller/AdminOrderController';
 
 const app = new Hono()
 
 app.use(
    "/*",
    cors({
-      origin: [`${process.env.ALLOWED_ORIGIN_WEB}`],
+      origin: [`${process.env.ALLOWED_ORIGIN_WEB}`, 'http://localhost:3001'],
       allowMethods: ["POST", "GET", "PUT", "DELETE"],
       credentials: true
    })
@@ -23,8 +26,18 @@ app.use(
 app.get('/', (c) => {
    return c.text('Hello Hono!')
 })
-app.route("/api/auth", authRoute)
+// admin
+app.route("/api/admin/user", adminUserRoute)
+app.route("/api/admin/order", adminOrderRoute)
+// public
 app.route("/api/user", userRoute)
+app.route("/api/user/account", userAccountRoute)
+
+//
+
+// 
+app.route("/api/auth", authRoute)
+app.route("/api/user", adminUserRoute)
 app.route("/api/taxonomy", taxonomyRoute)
 app.route("/api/dishes", dishesRoute)
 app.route("/api/checkout", checkoutRoute)

@@ -16,16 +16,12 @@ exports.createSecret = createSecret;
 const stripe_1 = __importDefault(require("stripe"));
 const stripe = new stripe_1.default(process.env.STRIPE_SK);
 function createSecret(amount_1) {
-    return __awaiter(this, arguments, void 0, function* (amount, currency = 'inr', checkoutId, name, email) {
+    return __awaiter(this, arguments, void 0, function* (amount, currency = 'inr', metadata) {
         const paymentIntent = yield stripe.paymentIntents.create({
             amount: amount,
             currency: currency,
             payment_method_types: ['card'],
-            metadata: {
-                name: name,
-                email: email,
-                checkoutId: checkoutId,
-            }
+            metadata: metadata
         });
         // const session = await stripe.checkout.sessions.create({
         //    line_items: [

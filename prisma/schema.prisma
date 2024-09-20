@@ -15,14 +15,17 @@ datasource db {
 
 // =======================  Customar User =======================
 model Users {
-   id           Int       @id @default(autoincrement())
+   id           Int             @id @default(autoincrement())
    fullName     String?
-   email        String    @unique
+   email        String          @unique
    phoneNumber  String?
    profileImage String?
    userAuth     UserAuth?
-   createdAt    DateTime  @default(now())
-   updatedAt    DateTime  @default(now()) @updatedAt
+   order        Order[]
+   tableBooking TableBooking[]
+   userAddress  UserAddresses[]
+   createdAt    DateTime        @default(now())
+   updatedAt    DateTime        @default(now()) @updatedAt
 }
 
 model UserAuth {
@@ -31,6 +34,25 @@ model UserAuth {
    user     Users   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
    method   String?
    password String?
+}
+
+model UserAddresses {
+   id              Int      @id @default(autoincrement())
+   userId          Int
+   user            Users    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+   deliveryPurpose Boolean  @default(false)
+   billingPurpose  Boolean  @default(false)
+   defaultDelivery Boolean  @default(false)
+   defaultBilling  Boolean  @default(false)
+   fullName        String
+   phone           String
+   streetAddress   String
+   city            String
+   state           String
+   zipCode         String
+   country         String
+   createdAt       DateTime @default(now())
+   updatedAt       DateTime @default(now()) @updatedAt
 }
 
 // =======================  Admin User =======================
@@ -100,9 +122,10 @@ model Dishes {
    thumbnail        String?
    nonVeg           Boolean          @default(false)
    categories       DishesTaxonomy[]
+   checkout         Checkout[]
+   orderItems       OrderItems[]
    createdAt        DateTime         @default(now())
    updatedAt        DateTime         @default(now()) @updatedAt
-   Checkout         Checkout[]
 }
 
 model DishesTaxonomy {
@@ -123,6 +146,7 @@ model Checkout {
    dishId     Int
    dishes     Dishes   @relation(fields: [dishId], references: [id])
    quantity   Int
+   price      Int
    createdAt  DateTime @default(now())
    updatedAt  DateTime @default(now()) @updatedAt
 
@@ -131,12 +155,90 @@ model Checkout {
 
 // ================== Orders =================
 
-// model Order {
-//    id          Int    @id @default(autoincrement())
-//    orderId     String
-//    // userId        Int
-//    // user          Users         @relation(fields: [userId], references: [id])
-//    totalAmount Int
-//    // paymentMethod PaymentMethod
-//    // status        OrderStatus
-// }
+model Order {
+   id            Int             @id @default(autoincrement())
+   cuid          String          @unique @default(cuid())
+   userId        Int
+   user          Users           @relation(fields: [userId], references: [id])
+   totalAmount   Int?
+   status        OrderStatus     @default(pending)
+   paymentMethod PaymentDetails?
+   orderItems    OrderItems[]
+   createdAt     DateTime        @default(now())
+   updatedAt     DateTime        @default(now()) @updatedAt
+}
+
+model OrderItems {
+   id        Int      @id @default(autoincrement())
+   orderId   Int
+   order     Order    @relation(fields: [orderId], references: [id])
+   dishId    Int
+   dishes    Dishes   @relation(fields: [dishId], references: [id])
+   quantity  Int
+   price     Int
+   createdAt DateTime @default(now())
+   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model PaymentDetails {
+   id            Int           @id @default(autoincrement())
+   orderId       Int           @unique
+   order         Order         @relation(fields: [orderId], references: [id])
+   paymentId     String
+   paymentMethod String
+   amount        Int
+   status        PaymentStatus @default(pending)
+   transactionId String?
+   createdAt     DateTime      @default(now())
+   updatedAt     DateTime      @default(now()) @updatedAt
+}
+
+enum OrderStatus {
+   pending
+   confirmed
+   rejected
+   placed
+   delivered
+   cancelled
+}
+
+enum PaymentStatus {
+   pending
+   succeeded
+   failed
+   refunded
+}
+
+// ===================== Table Booking =================
+
+model TableBooking {
+   id        Int           @id @default(autoincrement())
+   cuid      String        @unique @default(cuid())
+   userId    Int
+   user      Users         @relation(fields: [userId], references: [id])
+   tableId   Int
+   table     Table         @relation(fields: [tableId], references: [id])
+   time      String
+   date      String
+   note      String?
+   status    BookingStatus @default(pending)
+   createdAt DateTime      @default(now())
+   updatedAt DateTime      @default(now()) @updatedAt
+
+   @@unique([id, userId])
+}
+
+model Table {
+   id           Int            @id @default(autoincrement())
+   tableNumber  Int
+   capacity     Int
+   TableBooking TableBooking[]
+   createdAt    DateTime       @default(now())
+   updatedAt    DateTime       @default(now()) @updatedAt
+}
+
+enum BookingStatus {
+   pending
+   confirmed
+   rejected
+}

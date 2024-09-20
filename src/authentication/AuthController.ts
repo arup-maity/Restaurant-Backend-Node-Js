@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import bcrypt from "bcrypt";
 import prisma from "../config/Connection";
-import { adminAuthentication } from "../middleware";
 import { sign, verify } from "hono/jwt";
 import { getCookie, setCookie } from "hono/cookie";
 import { GoogleAuth } from "./social-auth/google";
@@ -17,6 +16,7 @@ const googleAuth = new GoogleAuth({
 authRoute.post("/admin-login", async c => {
    try {
       const body = await c.req.json()
+      console.log(body)
       // find username
       const user = await prisma.adminUser.findUnique({
          where: { email: body.email },
@@ -72,7 +72,7 @@ authRoute.post("/user-login", async c => {
       // 
       const payload = {
          id: user?.id,
-         name: user?.fullName,
+         name: user?.fullName || '',
          role: 'user',
          accessPurpose: 'user',
          purpose: 'login',

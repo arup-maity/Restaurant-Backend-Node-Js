@@ -1,16 +1,12 @@
 import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SK as string)
 
-export async function createSecret(amount: number, currency: string = 'inr', checkoutId: string | number, name: string, email: string) {
+export async function createSecret(amount: number, currency: string = 'inr', metadata: { [key: string]: any }) {
    const paymentIntent = await stripe.paymentIntents.create({
       amount: amount,
       currency: currency,
       payment_method_types: ['card'],
-      metadata: {
-         name: name,
-         email: email,
-         checkoutId: checkoutId,
-      }
+      metadata: metadata
    });
    // const session = await stripe.checkout.sessions.create({
    //    line_items: [

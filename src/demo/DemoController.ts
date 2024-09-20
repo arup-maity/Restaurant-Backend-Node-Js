@@ -235,5 +235,99 @@ demoRoute.post("/create-dish", async c => {
       return c.json({ success: false, error }, 500)
    }
 })
-
+demoRoute.post("/create-category", async c => {
+   try {
+      const createMany = await prisma.taxonomy.createMany({
+         data: [
+            {
+               name: "Starters",
+               slug: "starters",
+               description: "A selection of simple yet delicious dishes to start your meal.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Main Dishes",
+               slug: "main-dishes",
+               description: "A selection of hearty and flavorful dishes to enjoy during your meal.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Deserts",
+               slug: "desserts",
+               description: "A selection of sweet and delicious dishes to enjoy after your meal.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Drinks",
+               slug: "drinks",
+               description: "A test category for demonstration purposes.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Beverages",
+               slug: "beverages",
+               description: "A selection of refreshing and healthy drinks to enjoy at your table.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Dessert Specials",
+               slug: "dessert-specials",
+               description: "A selection of desserts that are extraordinary and delicious.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Appetizers",
+               slug: "appetizers",
+               description: "A selection of small and fun dishes to enjoy before your meal.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Salads",
+               slug: "salads",
+               description: "A selection of hearty and flavorful salads to enjoy during your meal.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Side Dishes",
+               slug: "side-dishes",
+               description: "A selection of small and fun dishes to enjoy after your meal.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Beer",
+               slug: "beer",
+               description: "A selection of handcrafted beers to enjoy at your table.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Wine",
+               slug: "wine",
+               description: "A selection of handcrafted wines to enjoy at your table.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Cocktails",
+               slug: "cocktails",
+               description: "A selection of handcrafted cocktails to enjoy at your table.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Pizza",
+               slug: "pizza",
+               description: "A selection of handcrafted pizza to enjoy at your table.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            },
+            {
+               name: "Other",
+               slug: "other",
+               description: "A selection of other specialty dishes to enjoy at your table.",
+               thumbnail: "27a3cf7f-efa5-4182-997e-4ea245a246ca.jpg"
+            }
+         ]
+      })
+      return c.json({ success: true, createMany }, 200)
+   } catch (error) {
+      return c.json({ success: false, error }, 500)
+   }
+})
 export default demoRoute

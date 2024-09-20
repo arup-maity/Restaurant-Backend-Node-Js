@@ -16,12 +16,12 @@ const hono_1 = require("hono");
 const Connection_1 = __importDefault(require("../config/Connection"));
 const stripe_1 = require("./stripe");
 const stripe_2 = __importDefault(require("stripe"));
+const middleware_1 = require("../middleware");
 const checkoutRoute = new hono_1.Hono();
 const stripe = new stripe_2.default(process.env.STRIPE_SK);
 checkoutRoute.post("/create-checkout", (c) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const body = yield c.req.json();
-        console.log(body);
         const newCheckout = yield Connection_1.default.checkout.createMany({
             data: body
         });
@@ -41,7 +41,6 @@ checkoutRoute.get("/checkout-details/:checkoutId", (c) => __awaiter(void 0, void
                 dishes: {
                     select: {
                         title: true,
-                        price: true,
                         thumbnail: true
                     }
                 },
@@ -57,18 +56,61 @@ checkoutRoute.get("/checkout-details/:checkoutId", (c) => __awaiter(void 0, void
 checkoutRoute.post("/create-payment", (c) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const body = yield c.req.json();
-        const secret = yield (0, stripe_1.createSecret)(body.amount, 'inr', body.checkoutId, 'name', 'email');
+        const metadata = {
+            checkoutId: body.checkoutId,
+            // shippingAddress: body.shippingAddress
+        };
+        const secret = yield (0, stripe_1.createSecret)(body.amount, 'inr', metadata);
         return c.json({ success: true, secret }, 200);
     }
     catch (error) {
+        console.log(error);
         return c.json({ success: false, error }, 500);
     }
 }));
-checkoutRoute.get("/webhook/:instance", (c) => __awaiter(void 0, void 0, void 0, function* () {
+checkoutRoute.get("/webhook", middleware_1.userAuthentication, (c) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const instance = c.req.param('instance');
+        const user = c.user;
+        if (!(user === null || user === void 0 ? void 0 : user.id))
+            return c.json({ success: false }, 409);
+        const { instance } = c.req.query();
         const intent = yield stripe.paymentIntents.retrieve(instance);
-        return c.json({ success: true, intent }, 200);
+        const checkoutId = intent.metadata.checkoutId;
+        const checkout = yield Connection_1.default.checkout.findMany({
+            where: { checkoutId },
+        });
+        if (!checkout.length)
+            return c.json({ success: false }, 409);
+        const orderDetails = checkout.map((item) => ({
+            dishId: item.id,
+            quantity: item.quantity,
+            price: item.price,
+        }));
+        const paymentDetails = {
+            paymentId: intent === null || intent === void 0 ? void 0 : intent.id,
+            paymentMethod: intent === null || intent === void 0 ? void 0 : intent.payment_method_types[0],
+            amount: +(intent === null || intent === void 0 ? void 0 : intent.amount) / 100,
+            status: intent === null || intent === void 0 ? void 0 : intent.status
+        };
+        const [createOrder, deleteCheckout] = yield Connection_1.default.$transaction([
+            Connection_1.default.order.create({
+                data: {
+                    userId: +user.id,
+                    orderItems: {
+                        create: orderDetails,
+                    },
+                    paymentMethod: {
+                        create: paymentDetails,
+                    }
+                }
+            }),
+            Connection_1.default.checkout.deleteMany({
+                where: { checkoutId },
+            }),
+        ]);
+        if (!createOrder)
+            return c.json({ success: false }, 409);
+        return c.json({ success: true }, 200);
     }
     catch (error) {
         console.log(error);
