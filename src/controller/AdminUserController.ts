@@ -8,12 +8,12 @@ adminUserRoute.use(adminAuthentication)
 adminUserRoute.post("/create", async c => {
    try {
       const body = await c.req.json()
-      const user = await prisma.adminUser.findUnique({
+      const user = await prisma.users.findUnique({
          where: { email: body.email }
       })
       if (user) return c.json({ success: false, message: "User already exists" }, 409)
       const hashPassword = bcrypt.hashSync(body.password, 16)
-      const newUser = await prisma.adminUser.create({
+      const newUser = await prisma.users.create({
          data: {
             firstName: body.firstName,
             lastName: body.lastName,
@@ -38,7 +38,7 @@ adminUserRoute.put("/update/:id", async c => {
    try {
       const body = await c.req.json()
       const { id } = c.req.param()
-      const updatedUser = await prisma.adminUser.update({
+      const updatedUser = await prisma.users.update({
          where: { id: +id },
          data: {
             email: body.email,
@@ -54,7 +54,7 @@ adminUserRoute.put("/update/:id", async c => {
 adminUserRoute.get("/read/:id", async c => {
    try {
       const { id } = c.req.param()
-      const user = await prisma.adminUser.findUnique({
+      const user = await prisma.users.findUnique({
          where: { id: +id },
          include: {
             adminAuth: true
@@ -69,7 +69,7 @@ adminUserRoute.get("/read/:id", async c => {
 adminUserRoute.delete("/delete/:id", async c => {
    try {
       const { id } = c.req.param()
-      const deletedUser = await prisma.adminUser.delete({
+      const deletedUser = await prisma.users.delete({
          where: { id: +id }
       })
       if (!deletedUser) return c.json({ success: false, message: "User not found" }, 409)
@@ -96,15 +96,15 @@ adminUserRoute.get("/managements-list", async c => {
       if (column && sortOrder) {
          query.orderBy = { [column]: sortOrder }
       }
-      const users = await prisma.adminUser.findMany({
+      const users = await prisma.users.findMany({
          where: conditions,
          take: +limit,
          skip: (+page - 1) * +limit,
          ...query,
       })
       const [filterCount, totalCount] = await Promise.all([
-         prisma.adminUser.count({ where: conditions }),
-         prisma.adminUser.count(),
+         prisma.users.count({ where: conditions }),
+         prisma.users.count(),
       ]);
       return c.json({ success: true, users, filterCount, totalCount, message: 'Successfully' }, 200)
    } catch (error) {

@@ -30,22 +30,22 @@ authRoute.post("/admin-login", (c) => __awaiter(void 0, void 0, void 0, function
         const body = yield c.req.json();
         console.log(body);
         // find username
-        const user = yield Connection_1.default.adminUser.findUnique({
+        const user = yield Connection_1.default.users.findUnique({
             where: { email: body.email },
             include: {
-                adminAuth: true
+                userAuth: true
             }
         });
         if (!user)
             return c.json({ success: false, message: "User not found" }, 409);
         // check password
-        const checkPassword = bcrypt_1.default.compareSync(body === null || body === void 0 ? void 0 : body.password, (_a = user.adminAuth) === null || _a === void 0 ? void 0 : _a.password);
+        const checkPassword = bcrypt_1.default.compareSync(body === null || body === void 0 ? void 0 : body.password, (_a = user.userAuth) === null || _a === void 0 ? void 0 : _a.password);
         if (!checkPassword)
             return c.json({ success: false, message: "Not match username and password" }, 409);
         // 
         const payload = {
             id: user === null || user === void 0 ? void 0 : user.id,
-            name: (user === null || user === void 0 ? void 0 : user.firstName) + " " + (user === null || user === void 0 ? void 0 : user.lastName),
+            name: (user === null || user === void 0 ? void 0 : user.firstName) ? (user === null || user === void 0 ? void 0 : user.firstName) + " " + (user === null || user === void 0 ? void 0 : user.lastName) : '',
             role: user === null || user === void 0 ? void 0 : user.role,
             accessPurpose: 'admin',
             purpose: 'login',

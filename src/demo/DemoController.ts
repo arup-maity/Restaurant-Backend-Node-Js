@@ -7,17 +7,19 @@ const demoRoute = new Hono()
 demoRoute.post("/create-admin-user", async c => {
    try {
       const body = await c.req.json()
-      const user = await prisma.adminUser.findUnique({
+      const user = await prisma.users.findUnique({
          where: { email: body.email }
       })
       if (user) return c.json({ success: false, message: "User already exists" }, 409)
       const hashPassword = bcrypt.hashSync(body.password, 16)
-      const newUser = await prisma.adminUser.create({
+      const newUser = await prisma.users.create({
          data: {
+            firstName: body.firstName,
+            lastName: body.lastName,
             email: body.email,
             role: 'administrator',
             isActive: true,
-            adminAuth: {
+            userAuth: {
                create: {
                   method: "password",
                   password: hashPassword

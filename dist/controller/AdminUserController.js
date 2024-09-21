@@ -21,13 +21,13 @@ adminUserRoute.use(middleware_1.adminAuthentication);
 adminUserRoute.post("/create", (c) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const body = yield c.req.json();
-        const user = yield Connection_1.default.adminUser.findUnique({
+        const user = yield Connection_1.default.users.findUnique({
             where: { email: body.email }
         });
         if (user)
             return c.json({ success: false, message: "User already exists" }, 409);
         const hashPassword = bcrypt_1.default.hashSync(body.password, 16);
-        const newUser = yield Connection_1.default.adminUser.create({
+        const newUser = yield Connection_1.default.users.create({
             data: {
                 firstName: body.firstName,
                 lastName: body.lastName,
@@ -54,7 +54,7 @@ adminUserRoute.put("/update/:id", (c) => __awaiter(void 0, void 0, void 0, funct
     try {
         const body = yield c.req.json();
         const { id } = c.req.param();
-        const updatedUser = yield Connection_1.default.adminUser.update({
+        const updatedUser = yield Connection_1.default.users.update({
             where: { id: +id },
             data: {
                 email: body.email,
@@ -72,7 +72,7 @@ adminUserRoute.put("/update/:id", (c) => __awaiter(void 0, void 0, void 0, funct
 adminUserRoute.get("/read/:id", (c) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = c.req.param();
-        const user = yield Connection_1.default.adminUser.findUnique({
+        const user = yield Connection_1.default.users.findUnique({
             where: { id: +id },
             include: {
                 adminAuth: true
@@ -89,7 +89,7 @@ adminUserRoute.get("/read/:id", (c) => __awaiter(void 0, void 0, void 0, functio
 adminUserRoute.delete("/delete/:id", (c) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = c.req.param();
-        const deletedUser = yield Connection_1.default.adminUser.delete({
+        const deletedUser = yield Connection_1.default.users.delete({
             where: { id: +id }
         });
         if (!deletedUser)
@@ -118,10 +118,10 @@ adminUserRoute.get("/managements-list", (c) => __awaiter(void 0, void 0, void 0,
         if (column && sortOrder) {
             query.orderBy = { [column]: sortOrder };
         }
-        const users = yield Connection_1.default.adminUser.findMany(Object.assign({ where: conditions, take: +limit, skip: (+page - 1) * +limit }, query));
+        const users = yield Connection_1.default.users.findMany(Object.assign({ where: conditions, take: +limit, skip: (+page - 1) * +limit }, query));
         const [filterCount, totalCount] = yield Promise.all([
-            Connection_1.default.adminUser.count({ where: conditions }),
-            Connection_1.default.adminUser.count(),
+            Connection_1.default.users.count({ where: conditions }),
+            Connection_1.default.users.count(),
         ]);
         return c.json({ success: true, users, filterCount, totalCount, message: 'Successfully' }, 200);
     }

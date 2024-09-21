@@ -18,20 +18,20 @@ authRoute.post("/admin-login", async c => {
       const body = await c.req.json()
       console.log(body)
       // find username
-      const user = await prisma.adminUser.findUnique({
+      const user = await prisma.users.findUnique({
          where: { email: body.email },
          include: {
-            adminAuth: true
+            userAuth: true
          }
       })
       if (!user) return c.json({ success: false, message: "User not found" }, 409)
       // check password
-      const checkPassword = bcrypt.compareSync(body?.password, user.adminAuth?.password)
+      const checkPassword = bcrypt.compareSync(body?.password, user.userAuth?.password)
       if (!checkPassword) return c.json({ success: false, message: "Not match username and password" }, 409)
       // 
       const payload = {
          id: user?.id,
-         name: user?.firstName + " " + user?.lastName,
+         name: user?.firstName ? user?.firstName + " " + user?.lastName : '',
          role: user?.role,
          accessPurpose: 'admin',
          purpose: 'login',

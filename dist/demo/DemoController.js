@@ -19,18 +19,20 @@ const demoRoute = new hono_1.Hono();
 demoRoute.post("/create-admin-user", (c) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const body = yield c.req.json();
-        const user = yield Connection_1.default.adminUser.findUnique({
+        const user = yield Connection_1.default.users.findUnique({
             where: { email: body.email }
         });
         if (user)
             return c.json({ success: false, message: "User already exists" }, 409);
         const hashPassword = bcrypt_1.default.hashSync(body.password, 16);
-        const newUser = yield Connection_1.default.adminUser.create({
+        const newUser = yield Connection_1.default.users.create({
             data: {
+                firstName: body.firstName,
+                lastName: body.lastName,
                 email: body.email,
                 role: 'administrator',
                 isActive: true,
-                adminAuth: {
+                userAuth: {
                     create: {
                         method: "password",
                         password: hashPassword

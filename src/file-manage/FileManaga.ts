@@ -14,8 +14,6 @@ const minioClient = new Minio.Client({
    secretKey: process.env.MINIO_SECRETKEY as string
 })
 
-
-
 fileRoute.post("/upload-image", async c => {
    try {
       const formData = await c.req.formData();

@@ -3,8 +3,8 @@ import { Hono } from 'hono'
 import { cors } from "hono/cors";
 import demoRoute from './demo/DemoController'
 import authRoute from './authentication/AuthController';
-import taxonomyRoute from './taxonomy/TaxonomyController';
-import dishesRoute from './dishes/DishesController';
+import taxonomyRoute from './controller/TaxonomyController';
+import dishesRoute from './controller/DishesController';
 import fileRoute from './file-manage/FileManaga';
 import checkoutRoute from './checkout/CheckoutController';
 import adminUserRoute from './controller/AdminUserController';
