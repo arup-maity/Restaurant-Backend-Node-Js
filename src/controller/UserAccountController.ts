@@ -115,11 +115,7 @@ userAccountRoute.put("/update-profile", async c => {
       if (!user?.id) return c.json({ success: false }, 409)
       const updateProfile = await prisma.users.update({
          where: { id: +user.id },
-         data: {
-            fullName: body.fullName,
-            email: body.email,
-            phoneNumber: body.phoneNumber,
-         }
+         data: body
       })
       return c.json({ success: true, updateProfile }, 200)
    } catch (error) {
